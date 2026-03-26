@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>烟花连通</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- 状态A：开始界面 -->
+        <div id="screen-start" class="screen active">
+            <h1>烟花连通</h1>
+            <p class="subtitle">连接火源与火箭，点亮夜空！</p>
+            <button id="btn-start" class="btn primary-btn">开始游戏</button>
+        </div>
+
+        <!-- 状态B：游戏界面 -->
+        <div id="screen-game" class="screen">
+            <!-- 顶部信息栏 -->
+            <div id="top-bar">
+                <div class="info-block">关卡: <span id="info-level">1</span></div>
+                <div class="info-block time">时间: <span id="info-timer">60</span>s</div>
+                <div class="info-block">分数: <span id="info-score">0</span></div>
+                <button id="btn-toggle-music" style="background: transparent; border: none; font-size: 1.5rem; cursor: pointer; filter: drop-shadow(0 0 5px #fcd34d);">🔊</button>
+            </div>
+
+            <!-- 中部游戏区 -->
+            <div id="game-area-container">
+                <div id="game-area">
+                    <!-- 左侧火源列，通过JS动态生成 -->
+                    <div id="sources-col" class="side-col"></div>
+                    <!-- 6x10 棋盘 -->
+                    <div id="grid-board"></div>
+                    <!-- 右侧火箭列 -->
+                    <div id="rockets-col" class="side-col"></div>
+                </div>
+            </div>
+
+            <!-- 底部控制栏 -->
+            <div id="bottom-bar">
+                <button id="btn-restart" class="btn">重开本关</button>
+                <button id="btn-ignite" class="btn danger-btn">点火</button>
+                <button id="btn-menu" class="btn">菜单</button>
+            </div>
+            
+            <!-- 结算弹窗 -->
+            <div id="modal-settlement" class="modal hidden">
+                <div class="modal-content">
+                    <h2 id="settle-title">结算</h2>
+                    <div id="settle-details" class="details-text"></div>
+                    <button id="btn-next-action" class="btn primary-btn">继续</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="levels.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
