@@ -322,11 +322,11 @@ function generateGrid(levelData) {
             
             if (dirs.length <= 1) {
                 const rval = Math.random();
-                if (rval < 0.3) finalType = 'straight';
-                else if (rval < 0.6) finalType = 'corner';
-                else if (rval < 0.8) finalType = 'tee';
-                else if (rval < 0.9) finalType = 'cross';
-                else finalType = 'bridge';
+                if (rval < 0.25) finalType = 'straight';
+                else if (rval < 0.50) finalType = 'corner';
+                else if (rval < 0.70) finalType = 'tee';
+                else if (rval < 0.90) finalType = 'cross'; // 20% chance
+                else finalType = 'bridge'; // 10% chance
             } else if (dirs.length === 2) {
                 if ((dirs.includes('left') && dirs.includes('right')) || 
                     (dirs.includes('top') && dirs.includes('bottom'))) {
