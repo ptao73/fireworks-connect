@@ -348,6 +348,8 @@ function generateGrid(levelData) {
                 type: finalType,
                 rotation: finalRot,
                 connected: false,
+                connectedH: false,
+                connectedV: false,
                 isSpecialTarget: false
             });
         }
@@ -423,14 +425,46 @@ function updateGridDOM() {
     // Only update classes and transforms instead of full re-render for performance
     gameState.grid.forEach((cell, idx) => {
         const cDiv = elGridBoard.children[idx];
-        if (cell.connected) {
-            cDiv.classList.add('connected');
-            if (cell.activeColor) {
-               cDiv.style.setProperty('--pipe-active-color', cell.activeColor);
+        
+        if (cell.type === 'bridge') {
+            const inner = cDiv.querySelector('.pipe-inner');
+            const hPart = inner.querySelector('.pipe-bridge-h');
+            const vPart = inner.querySelector('.pipe-bridge-v');
+            
+            if (cell.connectedH) {
+                if(hPart) {
+                    hPart.classList.add('lit-bridge');
+                    hPart.style.setProperty('--bridge-color', cell.activeColorH);
+                }
+            } else {
+                if(hPart) {
+                    hPart.classList.remove('lit-bridge');
+                    hPart.style.removeProperty('--bridge-color');
+                }
             }
-        } else {
+            
+            if (cell.connectedV) {
+                if(vPart) {
+                    vPart.classList.add('lit-bridge');
+                    vPart.style.setProperty('--bridge-color', cell.activeColorV);
+                }
+            } else {
+                if(vPart) {
+                    vPart.classList.remove('lit-bridge');
+                    vPart.style.removeProperty('--bridge-color');
+                }
+            }
             cDiv.classList.remove('connected');
-            cDiv.style.removeProperty('--pipe-active-color');
+        } else {
+            if (cell.connected) {
+                cDiv.classList.add('connected');
+                if (cell.activeColor) {
+                   cDiv.style.setProperty('--pipe-active-color', cell.activeColor);
+                }
+            } else {
+                cDiv.classList.remove('connected');
+                cDiv.style.removeProperty('--pipe-active-color');
+            }
         }
         
         cDiv.querySelector('.pipe-inner').style.transform = `rotate(${cell.rotation}deg)`;
@@ -442,9 +476,34 @@ function getCell(col, row) {
     return gameState.grid[row * CONFIG.cols + col];
 }
 
+function markCellConnected(cell, entryDir, color) {
+    cell.connected = true;
+    cell.activeColor = color;
+    
+    if (cell.type === 'bridge') {
+        let isVisuallyHorizontalPath = (entryDir === 'left' || entryDir === 'right');
+        let h_is_horiz = (cell.rotation % 180 === 0);
+        let targetLocalPart = h_is_horiz ? 
+            (isVisuallyHorizontalPath ? 'h' : 'v') : 
+            (isVisuallyHorizontalPath ? 'v' : 'h');
+            
+        if (targetLocalPart === 'h') {
+            cell.connectedH = true;
+            cell.activeColorH = color;
+        } else {
+            cell.connectedV = true;
+            cell.activeColorV = color;
+        }
+    }
+}
+
 function calculateConnections() {
     // Reset connections
-    gameState.grid.forEach(c => c.connected = false);
+    gameState.grid.forEach(c => {
+        c.connected = false;
+        c.connectedH = false;
+        c.connectedV = false;
+    });
     
     // Each source tracks which rockets it has reached
     gameState.sources.forEach(s => s.litRockets = []);
@@ -480,8 +539,7 @@ function calculateConnections() {
                 
                 if (exits.length === 0) continue;
                 
-                cell.connected = true; // For visuals
-                cell.activeColor = gameState.sources[r].color;
+                markCellConnected(cell, entryDir, gameState.sources[r].color);
                 
                 // Add unvisited neighbors
                 exits.forEach(outDir => {
@@ -588,10 +646,7 @@ function animateFireWave(startRow, claimedRockets) {
                 if (exits.length === 0) continue;
                 
                 if (!waves[curr.dist]) waves[curr.dist] = [];
-                if (!waves[curr.dist].includes(cell)) {
-                    cell.activeColor = gameState.sources[startRow].color;
-                    waves[curr.dist].push(cell);
-                }
+                waves[curr.dist].push({ cell: cell, entryDir: entryDir, color: gameState.sources[startRow].color });
                 
                 exits.forEach(outDir => {
                     const nextCoord = getNeighborCoords(curr.c, curr.r, outDir);
@@ -614,8 +669,8 @@ function animateFireWave(startRow, claimedRockets) {
             }
             if (waves[step]) {
                 AudioEngine.playWaveStep(step);
-                waves[step].forEach(cell => {
-                    cell.connected = true;
+                waves[step].forEach(action => {
+                    markCellConnected(action.cell, action.entryDir, action.color);
                 });
                 updateGridDOM(); 
             }
@@ -669,7 +724,11 @@ async function triggerSettlement() {
     let litCount = 0;
     
     // Clear all grid highlights dynamically for animation 
-    gameState.grid.forEach(c => c.connected = false);
+    gameState.grid.forEach(c => {
+        c.connected = false;
+        c.connectedH = false;
+        c.connectedV = false;
+    });
     updateGridDOM();
     
     // Read out results bottom to top logically & animate
