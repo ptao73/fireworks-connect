@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>烟花连通</title>
+    <title>Fireworks Connect</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -11,18 +11,18 @@
     <div id="app">
         <!-- 状态A：开始界面 -->
         <div id="screen-start" class="screen active">
-            <h1>烟花连通</h1>
-            <p class="subtitle">连接火源与火箭，点亮夜空！</p>
-            <button id="btn-start" class="btn primary-btn">开始游戏</button>
+            <h1>Fireworks Connect</h1>
+            <p class="subtitle">Challenge your spatial intuition and light up the sky.</p>
+            <button id="btn-start" class="btn primary-btn">Start Game</button>
         </div>
 
         <!-- 状态B：游戏界面 -->
         <div id="screen-game" class="screen">
             <!-- 顶部信息栏 -->
             <div id="top-bar">
-                <div class="info-block">关卡: <span id="info-level">1</span></div>
-                <div class="info-block time">时间: <span id="info-timer">60</span>s</div>
-                <div class="info-block">分数: <span id="info-score">0</span></div>
+                <div class="info-block">Level: <span id="info-level">1</span></div>
+                <div class="info-block time">Time: <span id="info-timer">60</span>s</div>
+                <div class="info-block">Score: <span id="info-score">0</span></div>
                 <button id="btn-toggle-music" style="background: transparent; border: none; font-size: 1.5rem; cursor: pointer; filter: drop-shadow(0 0 5px #fcd34d);">🔊</button>
             </div>
 
@@ -40,17 +40,19 @@
 
             <!-- 底部控制栏 -->
             <div id="bottom-bar">
-                <button id="btn-restart" class="btn">重开本关</button>
-                <button id="btn-ignite" class="btn danger-btn">点火</button>
-                <button id="btn-menu" class="btn">菜单</button>
+                <button id="btn-ignite" class="btn danger-btn">Ignite</button>
+                <button id="btn-menu" class="btn">Menu</button>
             </div>
             
             <!-- 结算弹窗 -->
             <div id="modal-settlement" class="modal hidden">
                 <div class="modal-content">
-                    <h2 id="settle-title">结算</h2>
+                    <h2>Level Completed</h2>
                     <div id="settle-details" class="details-text"></div>
-                    <button id="btn-next-action" class="btn primary-btn">继续</button>
+                    <div class="modal-actions">
+                        <button id="btn-next-action" class="btn primary-btn">Next Level</button>
+                        <button id="btn-restart" class="btn danger-btn" style="margin-left: 10px;">Retry</button>
+                    </div>
                 </div>
             </div>
         </div>

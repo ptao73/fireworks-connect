@@ -42,7 +42,7 @@ const AudioEngine = {
                 SFX.bgm.play()
                     .then(() => this.bgmPlaying = true)
                     .catch(e => {
-                        console.warn("本地无 BGM 文件，已为您临时加载一首在线测试音乐", e);
+                        console.warn("Local BGM missing, loading fallback track...", e);
                         SFX.bgm.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3";
                         SFX.bgm.play().then(() => this.bgmPlaying = true).catch(e2=>e2);
                     });
@@ -664,7 +664,7 @@ async function triggerSettlement() {
         });
     });
     
-    let details = "各火源得分：\n";
+    let details = "Score Details:\n";
     let baseScore = 0;
     let litCount = 0;
     
@@ -696,12 +696,12 @@ async function triggerSettlement() {
             
             let p = N * 100 * N;
             baseScore += p;
-            details += `  火源${10-r}：连通${N}个火箭 -> ${p}分\n`;
+            details += `  Source ${10-r}: connected ${N} rockets -> ${p} pts\n`;
             
             // Brief pause between sources fireworks
             await new Promise(res => setTimeout(res, 400));
         } else {
-            details += `  火源${10-r}：连通0个火箭 -> 0分\n`;
+            details += `  Source ${10-r}: connected 0 rockets -> 0 pts\n`;
         }
     }
     
@@ -709,10 +709,10 @@ async function triggerSettlement() {
     const totalScore = baseScore + timeBonus;
     gameState.score = totalScore;
     
-    details += `倍数奖励合计：${baseScore} 分\n`;
-    details += `时间奖励：剩余${gameState.remainingSeconds}s × 第${gameState.levelId}关 = ${timeBonus} 分\n`;
+    details += `Multiplier Bonus Total: ${baseScore} pts\n`;
+    details += `Time Bonus: ${gameState.remainingSeconds}s × Lvl ${gameState.levelId} = ${timeBonus} pts\n`;
     details += `──────────────────\n`;
-    details += `总分：${totalScore} 分\n\n`;
+    details += `Total Score: ${totalScore} pts\n\n`;
     
     // Win condition for Phase 2 (Double-track logic)
     const levelData = LEVELS[gameState.levelId - 1];
@@ -722,33 +722,36 @@ async function triggerSettlement() {
     if (gameState.levelId <= 2) {
         const required = Math.ceil(levelData.rows * 0.6);
         isWin = (litCount >= required);
-        winReqStr = `需点燃 ${required} 个火箭，当前点燃 ${litCount} 个`;
+        winReqStr = `Target: Ignite ${required} rockets | Current: ${litCount}`;
     } else {
         const requiredScore = levelData.rows * 100 * 1.3;
         isWin = (totalScore >= requiredScore);
-        winReqStr = `需达到分数 ${requiredScore}，当前分数 ${totalScore}`;
+        winReqStr = `Target Score: ${requiredScore} | Current: ${totalScore}`;
     }
     
     gameState.isWin = isWin;
     const btnNext = document.getElementById('btn-next-action');
+    const modalTitle = document.querySelector('#modal-settlement h2');
     
     if (isWin) {
+        if (modalTitle) modalTitle.textContent = "Level Completed";
         if (gameState.levelId === 10) {
-            details += `[全收集通关！祝您新年快乐！] ${winReqStr}`;
-            btnNext.textContent = '返回菜单';
+            details += `[All Clear! Happy New Year!] ${winReqStr}`;
+            btnNext.textContent = 'Main Menu';
             AudioEngine.playIgnite();
             createParticles(document.body, 'big');
         } else {
-            details += `[过关！] ${winReqStr}`;
-            btnNext.textContent = '进入下一关';
+            details += `[Success!] ${winReqStr}`;
+            btnNext.textContent = 'Next Level';
             if (gameState.levelId >= 3 && isWin) {
                  AudioEngine.playIgnite();
                  createParticles(document.body, 'big');
             }
         }
     } else {
-        details += `[未过关，继续加油...] ${winReqStr}`;
-        btnNext.textContent = '重玩本关';
+        if (modalTitle) modalTitle.textContent = "Level Failed";
+        details += `[Failed, try again...] ${winReqStr}`;
+        btnNext.textContent = 'Retry';
     }
     
     elScore.textContent = totalScore;
